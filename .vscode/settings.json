@@ -1,5 +1,3 @@
 {
-    "powerquery.client.additionalSymbolsDirectories": [
-        "e:/POLO/ZenithScript/.vscode/excel-pq-symbols"
-    ]
+  "css.lint.unknownAtRules": "ignore"
 }
