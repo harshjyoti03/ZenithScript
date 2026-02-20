@@ -12,17 +12,27 @@ import {
 function App() {
   const [teamA, setTeamA] = useState([]);
   const [teamB, setTeamB] = useState([]);
-
   const [result, setResult] = useState(null);
 
+  // SELECT CHARACTER
   const handleSelect = (char) => {
-    if (teamA.length < 3) {
+    if (teamA.length < 3 && !teamA.includes(char)) {
       setTeamA([...teamA, char]);
-    } else if (teamB.length < 3) {
+    } else if (teamB.length < 3 && !teamB.includes(char)) {
       setTeamB([...teamB, char]);
     }
   };
 
+  // REMOVE FROM TEAM
+  const removeFromA = (id) => {
+    setTeamA(teamA.filter((c) => c.id !== id));
+  };
+
+  const removeFromB = (id) => {
+    setTeamB(teamB.filter((c) => c.id !== id));
+  };
+
+  // START BATTLE
   const startBattle = () => {
     if (teamA.length === 0 || teamB.length === 0) {
       alert("Select characters for both teams!");
@@ -30,7 +40,6 @@ function App() {
     }
 
     const battle = calculateWinner(teamA, teamB);
-
     const commentary = generateCommentary(
       teamA,
       teamB,
@@ -38,6 +47,21 @@ function App() {
     );
 
     setResult({ ...battle, commentary });
+  };
+
+  // RESET BATTLE
+  const resetBattle = () => {
+    setTeamA([]);
+    setTeamB([]);
+    setResult(null);
+  };
+
+  // RANDOM BATTLE
+  const randomBattle = () => {
+    const shuffled = [...characters].sort(() => 0.5 - Math.random());
+    setTeamA(shuffled.slice(0, 3));
+    setTeamB(shuffled.slice(3, 6));
+    setResult(null);
   };
 
   return (
@@ -54,9 +78,11 @@ function App() {
 
         {/* CHARACTER POOL */}
         <div className="w-1/3 border-r border-gray-800 p-6 overflow-y-auto">
-          <h2 className="text-xl mb-4 text-purple-300">Character Pool</h2>
+          <h2 className="text-xl mb-4 text-purple-300">
+            Character Pool
+          </h2>
 
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {characters.map((char) => (
               <CharacterCard
                 key={char.id}
@@ -70,13 +96,37 @@ function App() {
         {/* RIGHT SIDE */}
         <div className="flex-1 p-6 flex flex-col gap-6">
 
+          {/* TEAM PANELS */}
           <div className="grid grid-cols-2 gap-6">
-            <TeamPanel title="Team A" team={teamA} />
-            <TeamPanel title="Team B" team={teamB} />
+            <TeamPanel
+              title="Team A"
+              team={teamA}
+              onRemove={removeFromA}
+            />
+            <TeamPanel
+              title="Team B"
+              team={teamB}
+              onRemove={removeFromB}
+            />
           </div>
 
-          <div className="flex justify-center">
+          {/* CONTROLS */}
+          <div className="flex gap-4 justify-center">
             <BattleControls onBattle={startBattle} />
+
+            <button
+              onClick={resetBattle}
+              className="bg-red-600 hover:bg-red-700 px-5 py-3 rounded-lg font-semibold"
+            >
+              Reset
+            </button>
+
+            <button
+              onClick={randomBattle}
+              className="bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-lg font-semibold"
+            >
+              Surprise Me 🎲
+            </button>
           </div>
 
           {/* RESULT PANEL */}
@@ -88,11 +138,17 @@ function App() {
               </h2>
 
               <p>
-                Team A Win Chance: <span className="text-purple-300">{result.probA}%</span>
+                Team A Win Chance:{" "}
+                <span className="text-purple-300">
+                  {result.probA}%
+                </span>
               </p>
 
               <p>
-                Team B Win Chance: <span className="text-purple-300">{result.probB}%</span>
+                Team B Win Chance:{" "}
+                <span className="text-purple-300">
+                  {result.probB}%
+                </span>
               </p>
 
               <p className="italic text-gray-300">
