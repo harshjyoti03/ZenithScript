@@ -4,9 +4,16 @@ import CharacterCard from "./components/CharacterCard";
 import TeamPanel from "./components/TeamPanel";
 import BattleControls from "./components/BattleControls";
 
+import {
+  calculateWinner,
+  generateCommentary,
+} from "./utils/battleEngine";
+
 function App() {
   const [teamA, setTeamA] = useState([]);
   const [teamB, setTeamB] = useState([]);
+
+  const [result, setResult] = useState(null);
 
   const handleSelect = (char) => {
     if (teamA.length < 3) {
@@ -17,7 +24,20 @@ function App() {
   };
 
   const startBattle = () => {
-    alert("Battle simulation coming in next phase!");
+    if (teamA.length === 0 || teamB.length === 0) {
+      alert("Select characters for both teams!");
+      return;
+    }
+
+    const battle = calculateWinner(teamA, teamB);
+
+    const commentary = generateCommentary(
+      teamA,
+      teamB,
+      battle.winner
+    );
+
+    setResult({ ...battle, commentary });
   };
 
   return (
@@ -36,7 +56,7 @@ function App() {
         <div className="w-1/3 border-r border-gray-800 p-6 overflow-y-auto">
           <h2 className="text-xl mb-4 text-purple-300">Character Pool</h2>
 
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid gap-3">
             {characters.map((char) => (
               <CharacterCard
                 key={char.id}
@@ -58,6 +78,28 @@ function App() {
           <div className="flex justify-center">
             <BattleControls onBattle={startBattle} />
           </div>
+
+          {/* RESULT PANEL */}
+          {result && (
+            <div className="bg-gray-900 p-6 rounded-lg text-center space-y-3">
+
+              <h2 className="text-2xl text-purple-400 font-bold">
+                Winner: {result.winner}
+              </h2>
+
+              <p>
+                Team A Win Chance: <span className="text-purple-300">{result.probA}%</span>
+              </p>
+
+              <p>
+                Team B Win Chance: <span className="text-purple-300">{result.probB}%</span>
+              </p>
+
+              <p className="italic text-gray-300">
+                "{result.commentary}"
+              </p>
+            </div>
+          )}
 
         </div>
       </div>
